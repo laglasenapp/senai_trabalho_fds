@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <locale.h>
-#include <math.h>
 #include <windows.h>
 #include <cctype>
 #include <string.h>
@@ -14,12 +13,21 @@ float percentualMinimoGanho = 0;
 float valorTotalCarteiraReal = 0;
 float qtdCarteiraCriptomoeda = 0;
 
+bool estaVazio(char *conteudo){
+	for (int i = 0; i < strlen(conteudo); i++){
+		if (conteudo[i] != '\0' && conteudo[i] != ' ' && ((int)conteudo[i] != 9)){
+			return false;
+		}
+	}
+	return true; 
+}
 
-monitorar(){
+trading(){
 	float percentualMaximoPerdaDecimal = percentualMaximoPerda / 100;
 	float percentualMinimoGanhoDecimal = percentualMinimoGanho / 100;
 	if (valorTotalCarteiraReal <= 0){
-		printf("\nNão é possível fazer trading com a conta zerada ou negativa!");			
+		printf("\nNão é possível fazer trading com a conta zerada ou negativa!");
+		Sleep(2000);			
 	} else {
 		printf("\nPressione a tecla \"q\" para sair do modo de monitoramento!");
 		char ch;
@@ -118,14 +126,16 @@ main(){
 	int numcasa = -1;
 	char numcart[19];
 	char validcart[5];
-	float codcart = 0;
+	int codcart = 0;
 	float valorpag = 0;
 
 	
 	printf("CADASTRO DE CONTA - EASY MONEY\n\n");
 	
+	
 	bool mensagemErroNome = false;
 	do {
+		nome[0] = '\0';		
 		if (mensagemErroNome){
 			printf("Você não pode deixar o nome vazio!\n");
 		}
@@ -133,10 +143,12 @@ main(){
 		fflush(stdin);
 		scanf("%[^\n]",&nome); 
 		mensagemErroNome = true;		
-	} while (strlen(nome) == 1 && ((int)nome[0] == 1));
+	} while (estaVazio(nome));
+	
 	
 	bool mensagemErroEmail = false;
 	do {
+		email[0] = '\0';		
 		if (mensagemErroEmail){
 			printf("Você não pode deixar o e-mail vazio!\n");
 		}
@@ -144,7 +156,7 @@ main(){
 		fflush(stdin);
 		scanf("%[^\n]",&email); 
 		mensagemErroEmail = true;		
-	} while(strlen(email) == 1 && ((int)email[0] == 97));
+	} while(estaVazio(email));
 	
 	bool mensagemErroIdade = false;
 	do {
@@ -160,6 +172,7 @@ main(){
 	
 	bool mensagemErroTelefone = false;
 	do {
+		telefone[0] = '\0';
 		if (mensagemErroTelefone){
 			printf("Você não pode deixar o telefone vazio!\n");
 		}	
@@ -168,7 +181,7 @@ main(){
 		scanf("%[^\n]",&telefone);
 				
 		mensagemErroTelefone = true;
-	}while(strlen(telefone) == 0 && ((int)telefone[0] == 0));
+	}while(estaVazio(telefone));
 	
 	bool mensagemErroSexo = false;
 	do {
@@ -181,8 +194,10 @@ main(){
 		mensagemErroSexo = true;			
 	} while (toupper(sexo) != 'M' && toupper(sexo) != 'F');
 	
+	
 	bool mensagemErroRua = false;
 	do {
+		rua[0] = '\0';
 		if (mensagemErroRua){
 			printf("Você não pode deixar a rua vazia!\n");
 		}	
@@ -191,7 +206,7 @@ main(){
 		scanf("%[^\n]",&rua);
 		mensagemErroRua = true;		
 		
-	} while (strlen(rua) == 3 && ((int)rua[0] == 80));
+	} while (estaVazio(rua));
 	
 	bool mensagemErroNumeroCasa = false;
 	do {
@@ -205,6 +220,7 @@ main(){
 	
 	bool mensagemErroCpf = false;
 	do {
+		cpf[0] = '\0';
 		if (mensagemErroCpf){
 			printf("Você não pode deixar o CPF vazio!\n");
 		}	
@@ -213,27 +229,27 @@ main(){
 		scanf("%[^\n]",&cpf);
 		mensagemErroCpf = true;	
 		
-	} while (strlen(cpf) == 3);
+	} while (estaVazio(cpf));
 	
 	bool mensagemErroRg = false;
 	do {
+		rg[0] = '\0';
 		if (mensagemErroRg){
 			printf("Você não pode deixar o RG vazio!\n");
 		}	
 		printf("\nDigite seu RG: ");
 		fflush(stdin);
 		scanf("%[^\n]",&rg);
-		mensagemErroRg = true;
-				
-	} while (strlen(rg) == 1 && ((int)rg[0] == 8));
+		mensagemErroRg = true;				
+	} while (estaVazio(rg));
 	
 	 
 	bool mensagemErroPercentualMaximoPerda = false;
 	do {
 		if (mensagemErroPercentualMaximoPerda){
-			printf("Você não pode informar um percentual negativo!\n");
+			printf("Você não pode informar um percentual negativo ou acima de 100!\n");
 		}	
-		printf("\nInforme o percentual máximo de perda (%%): ");
+		printf("\nInforme o percentual máximo de perda (%%) entre 0 e 100: ");
 		fflush(stdin);
 		scanf("%f",&percentualMaximoPerda);
 		mensagemErroPercentualMaximoPerda = true;				
@@ -242,9 +258,9 @@ main(){
 	bool mensagemErroPercentualMinimoGanho = false;
 	do {
 		if (mensagemErroPercentualMinimoGanho){
-			printf("Você não pode informar um percentual negativo!\n");
+			printf("Você não pode informar um percentual negativo ou acima de 100!\n");
 		}	
-		printf("\nInforme o percentual mínimo de ganho (%%): ");
+		printf("\nInforme o percentual mínimo de ganho (%%) entre 0 e 100: ");
 		fflush(stdin);
 		scanf("%f",&percentualMinimoGanho);
 		mensagemErroPercentualMinimoGanho = true;				
@@ -271,29 +287,67 @@ main(){
 	
 	
 	if (idade >= 18){
+		bool mensagemErroNumeroCartao = false;
+		bool mensagemErroValidadeCartao = false;
+		bool mensagemErroSegurancaCartao = false;
+		bool mensagemErroValorTransferenciaCartao = false;
 		bool sair = false;
 		do {
 			system("cls");
 			printf("Saldo atual:\n\tR$%.2f\n\tCoins:%.2f\n\n", valorTotalCarteiraReal, qtdCarteiraCriptomoeda);
-			printf("Escolha a forma de pagamento para transferir para sua carteira digital:\n\t1 - Cartão\n\t2 - PIX\n\t3 - Monitorar\n\t4 - Sair\n");
+			printf("Escolha uma das opções:\n\t1 - Cartão (Transferir para carteira digital)\n\t2 - PIX (Transferir para carteira digital)\n\t3 - Trading\n\t4 - Sair\n");
 			scanf("%i",&pag);
 			switch (pag){
 				case 1:
-					printf("Digite o número do cartão: ");
-					fflush(stdin);
-					scanf("%[^\n]",&numcart);
-					printf("Digite a validade do cartão: ");
-					fflush(stdin);
-					scanf("%[^\n]",&validcart);
-					printf("Digite o código de segurança do cartão: ");
-					scanf("%f",&codcart);
-					printf("Digite o valor da transferência: ");
-					scanf("%f",&valorpag);
+					
+					do {
+						numcart[0] = '\0';
+						if (mensagemErroNumeroCartao){
+							printf("Número do cartão não pode ser vazio!\n");	
+						}		
+						printf("\nDigite o número do cartão: ");
+						fflush(stdin);
+						scanf("%[^\n]",&numcart);
+						mensagemErroNumeroCartao = true;
+					} while (estaVazio(numcart));
+					
+					
+					do {
+						validcart[0] = '\0';
+						if (mensagemErroValidadeCartao){
+							printf("Número do cartão não pode ser vazio!\n");	
+						}		
+						printf("\nDigite a validade do cartão: ");
+						fflush(stdin);
+						scanf("%[^\n]",&validcart);
+						mensagemErroValidadeCartao = true;
+					} while (estaVazio(validcart));
+					
+					
+					do {
+						if (mensagemErroSegurancaCartao){
+							printf("Código de segurança não pode ser negativo!\n");	
+						}
+						printf("\nDigite o código de segurança do cartão: ");
+						scanf("%i",&codcart);
+						mensagemErroSegurancaCartao = true;
+					} while(codcart <= 0);	 
+					
+					
+					do {
+						if (mensagemErroValorTransferenciaCartao){
+							printf("O valor da transferência não pode ser negativo!\n");	
+						}
+						printf("\nDigite o valor da transferência: R$");
+						scanf("%f",&valorpag);
+						mensagemErroValorTransferenciaCartao = true;
+					} while (valorpag <= 0);
+					
 					valorTotalCarteiraReal += valorpag;
 					printf("Conferindo a aprovação...\n");
 					Sleep(2000);
 					printf("Transferência OK\n");
-					printf("Saldo atualizado: %.2f\n", valorTotalCarteiraReal);
+					printf("Saldo atualizado: R$%.2f\n", valorTotalCarteiraReal);
 					Sleep(2000);
 					break; 
 				case 2:
@@ -308,14 +362,15 @@ main(){
 					Sleep(2000);
 					break;
 				case 3:
-					monitorar();
-					break;		
+					trading();
+					break;	
 				case 4:
 					printf("Saindo do sistema");
 					sair = true;
 					break;
 				default:
 					printf("Opção inválida!");
+					Sleep(2000);
 				}
 		} while (!sair);
 	} else {
