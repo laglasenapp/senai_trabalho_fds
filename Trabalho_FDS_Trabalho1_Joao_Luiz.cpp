@@ -8,11 +8,16 @@
 #define MIN_PW_LENGTH 5
 #define MAX_PW_LENGTH 10
 
-float percentualMaximoPerda = 0;
-float percentualMinimoGanho = 0;
+//Declaração das variáveis desenvolvida pelo Luiz
+float percentualCompra = 0;
+float percentualVenda = 0;
 float valorTotalCarteiraReal = 0;
+//quantidade de criptomoedas deve ser um número decimal. Valores como 1,05 são realistas.
 float qtdCarteiraCriptomoeda = 0;
 
+/* 
+Método desenvolvido pelo Luiz. O método possui a finalidade de verificar se uma string está vazia
+*/
 bool estaVazio(char *conteudo){
 	for (int i = 0; i < strlen(conteudo); i++){
 		if (conteudo[i] != '\0' && conteudo[i] != ' ' && ((int)conteudo[i] != 9)){
@@ -22,9 +27,13 @@ bool estaVazio(char *conteudo){
 	return true; 
 }
 
+/* 
+Método desenvolvido pelo Luiz. O método possui a finalidade de realizar a compra e venda de coins
+*/
 trading(){
-	float percentualMaximoPerdaDecimal = percentualMaximoPerda / 100;
-	float percentualMinimoGanhoDecimal = percentualMinimoGanho / 100;
+	float percentualCompraDecimal = percentualCompra / 100;
+	float percentualVendaDecimal = percentualVenda / 100;
+	
 	if (valorTotalCarteiraReal <= 0){
 		printf("\nNão é possível fazer trading com a conta zerada ou negativa!");
 		Sleep(2000);			
@@ -34,6 +43,7 @@ trading(){
 		float cotacaoCoin = rand() * 1.25; //valor de referência
 		printf("\nCotação base da criptomoeda: %.2f", cotacaoCoin);
 		while (true) {
+			//a cada tecla pressionada, uma nova cotação é gerada
 			scanf("%c",&ch);
 			if (ch == 'q'){
 				break;
@@ -41,39 +51,41 @@ trading(){
 			
 			float novaCotacaoCoin = rand() * 1.50;
 			printf("\nCotação atual da criptomoeda: %.2f", novaCotacaoCoin);			
-			//quando aumenta valor da coin, então é hora de vender
+			//quando aumenta valor da coin, é hora de vender
 			if (novaCotacaoCoin >= cotacaoCoin){
+				//vender coins
 				if (qtdCarteiraCriptomoeda <= 0){
 					printf("\nAtualmente você não possui nenhuma criptomoeda para vender!");
 				} else {
-					float coinsParaVender = percentualMinimoGanhoDecimal * qtdCarteiraCriptomoeda;
-					qtdCarteiraCriptomoeda -= coinsParaVender;
-					valorTotalCarteiraReal = coinsParaVender * novaCotacaoCoin;
-					printf("\nSaldo da carteira digital: R$%.2f", valorTotalCarteiraReal);
+					float qtdCoinsVender = qtdCarteiraCriptomoeda * percentualVendaDecimal;
+					float receitaVenda = qtdCoinsVender * novaCotacaoCoin;
+					qtdCarteiraCriptomoeda -= qtdCoinsVender;
+					valorTotalCarteiraReal += receitaVenda; 
+					printf("\nRealizando a venda...");
+				    Sleep(2000);
+				    printf("\nSaldo na carteira digital: R$%.2f",valorTotalCarteiraReal);
+				    printf("\nQuantidade de coins: %.2f",qtdCarteiraCriptomoeda);
 				}
 			} else {
-				float diferenca = novaCotacaoCoin - cotacaoCoin;
-				float cota = diferenca / cotacaoCoin;
-				if (cota <= 0 ){
-					cota *= -1;
-				}
-				printf("\nCOTA: %f", cota);
-				printf("\npercentualMaximoPerdaDecimal: %f", percentualMaximoPerdaDecimal);
-				if (cota >= percentualMaximoPerdaDecimal){
-					float coinsParaComprarEmReal = percentualMaximoPerdaDecimal * valorTotalCarteiraReal;
-					float realEmCoins = coinsParaComprarEmReal / novaCotacaoCoin;
-					qtdCarteiraCriptomoeda += realEmCoins;
-					valorTotalCarteiraReal -= coinsParaComprarEmReal;
-					printf("\nSaldo da carteira digital: R$%.2f", valorTotalCarteiraReal);
-					printf("\nQuantidade de coins: R$%.2f", qtdCarteiraCriptomoeda);
-				} else {
-					printf("\nNão será comprado nenhuma coin em virtude do parâmetro máximo de perda!");
-				}
+				//comprar coins
+				float valorComprarReais = valorTotalCarteiraReal * percentualCompraDecimal;
+				float coinsComprar = valorComprarReais / novaCotacaoCoin;
+				valorTotalCarteiraReal -= valorComprarReais;
+				qtdCarteiraCriptomoeda += coinsComprar;
+				printf("\nRealizando a compra...");
+				Sleep(2000);
+				printf("\nSaldo na carteira digital: R$%.2f",valorTotalCarteiraReal);
+				printf("\nQuantidade de coins: %.2f",qtdCarteiraCriptomoeda);
+				
 			}
+			cotacaoCoin = novaCotacaoCoin;
 		}
 	}	
 }
 
+/* 
+Método desenvolvido pelo Luiz. O método possui a finalidade de solicitar a senha e substituir as letras digitadas por *.
+*/
 void digiteSenha(char *senhaTmp){
 	for (int i = 0; i < sizeof(senhaTmp);i++){
 		senhaTmp[i] = '\0';
@@ -110,6 +122,10 @@ void digiteSenha(char *senhaTmp){
 	senhaTmp[chPosicao] = '\0';	
 }
 
+/* 
+Método desenvolvido pelo João e Luiz. Método principal do programa.
+As validações foram desenvolvidas pelo Luiz e a implementação de entrada assim como o menu pelo João.
+*/
 main(){
 	setlocale(LC_ALL,"Portuguese");
 	srand(time(NULL));	
@@ -249,22 +265,22 @@ main(){
 		if (mensagemErroPercentualMaximoPerda){
 			printf("Você não pode informar um percentual negativo ou acima de 100!\n");
 		}	
-		printf("\nInforme o percentual máximo de perda (%%) entre 0 e 100: ");
+		printf("\nInforme o percentual de compra (%%) entre 0 e 100: ");
 		fflush(stdin);
-		scanf("%f",&percentualMaximoPerda);
+		scanf("%f",&percentualCompra);
 		mensagemErroPercentualMaximoPerda = true;				
-	} while (percentualMaximoPerda < 0 || percentualMaximoPerda > 100);
+	} while (percentualCompra < 0 || percentualCompra > 100);
 	
 	bool mensagemErroPercentualMinimoGanho = false;
 	do {
 		if (mensagemErroPercentualMinimoGanho){
 			printf("Você não pode informar um percentual negativo ou acima de 100!\n");
 		}	
-		printf("\nInforme o percentual mínimo de ganho (%%) entre 0 e 100: ");
+		printf("\nInforme o percentual de venda (%%) entre 0 e 100: ");
 		fflush(stdin);
-		scanf("%f",&percentualMinimoGanho);
+		scanf("%f",&percentualVenda);
 		mensagemErroPercentualMinimoGanho = true;				
-	} while (percentualMinimoGanho < 0 || percentualMinimoGanho > 100);
+	} while (percentualVenda < 0 || percentualVenda > 100);
 	 
 	while(true){
 		printf("\nInforme uma senha. A senha deve conter entre %d e %d caracteres!\nSenha:", MIN_PW_LENGTH, MAX_PW_LENGTH);
@@ -370,7 +386,7 @@ main(){
 					break;
 				default:
 					printf("Opção inválida!");
-					Sleep(2000);
+					Sleep(1100);
 				}
 		} while (!sair);
 	} else {
